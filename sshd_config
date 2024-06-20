@@ -1,0 +1,5 @@
+# Exemple de configuration SSH pour Alpine Linux
+PermitRootLogin no
+PasswordAuthentication yes
+Subsystem sftp /usr/lib/ssh/sftp-server
+LogLevel DEBUG3

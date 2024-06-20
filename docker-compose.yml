@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  dev:
+   image: dev
+   build:
+    context: . 
+    dockerfile: dockerfile
+   volumes:
+    - ./nm:/home/devuser/nm
+    - ssh-keys:/etc/ssh
+   stdin_open: true
+   tty: true
+   ports:
+    - 22:22
+
+volumes:
+  ssh-keys:
