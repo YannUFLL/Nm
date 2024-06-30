@@ -8,6 +8,7 @@
 #include <string.h>
 #include <unistd.h>
 #include "ft_printf.h"
+#include "libft.h"
 
 
 typedef u_int32_t Elf64_Word; 
@@ -68,6 +69,41 @@ void *findSectionHeader(void *section_headers_start_adress, void *shstrtab_secti
     return (section);
 }
 
+ int ft_strcmp(const char *str1, const char *str2 )
+{
+    int i = 0;
+
+    while (str1[i] && str2[i])
+    {
+        if (str1[i] != str2[i])
+        {
+            return ((unsigned char)str1[i] - (unsigned char)str2[i]);
+        }
+        i++;
+    }
+    return ((unsigned char)str1[i] - (unsigned char)str2[i]);
+}
+
+void sortSymTab(Elf64_Sym *symtab, u_int64_t symtab_size,char *sym_str)
+{
+    u_int64_t i = 1;
+    u_int64_t j = 0;
+    Elf64_Sym symb;
+
+    while (i < symtab_size)
+    {
+        j = i;
+        symb = symtab[i];
+        while (j > 0 && ft_strcmp(sym_str + (symb.st_name),  sym_str + (symtab[j - 1].st_name)) <= 0)
+        {
+            symtab[j] = symtab[j - 1];
+            j--;
+        }
+        symtab[j] = symb;
+        i++;
+    }
+}
+
 int main(int argc, char **argv)
 {
     if (argc == 1)
@@ -106,24 +142,59 @@ int main(int argc, char **argv)
 
     void *sym_tab_section_header = findSectionHeader(mapped + (u_int64_t)section_table_addr, section_shstrtab, ".symtab");
     void *symb_tab_offset = *(u_int64_t **)(sym_tab_section_header + 0x18);
+    printf(" symtab OFFSET %p \n", symb_tab_offset);
     Elf64_Sym *sym_tab = mapped + (u_int64_t)symb_tab_offset;
     void *sym_str_section_header = findSectionHeader(mapped + (u_int64_t)section_table_addr, section_shstrtab, ".strtab");
     void *symb_str_offset = *(u_int64_t **)(sym_str_section_header + 0x18);
-    u_int64_t sym_tab_size = *(u_int64_t *)(sym_str_section_header + 0x20);
+    u_int64_t sym_tab_size = *(u_int64_t *)(sym_tab_section_header + 0x20);
     printf("SIZE : %ld \n", sym_tab_size);
     void *sym_str = mapped + (u_int64_t)symb_str_offset;
     long unsigned int i = 0; 
-    while (i < sym_tab_size / 24)
+    printf("%ld \n", sym_tab_size / sizeof(Elf64_Sym));
+
+    
+    Elf64_Sym *symtab_copy = malloc(sym_tab_size);
+    ft_memcpy(symtab_copy, sym_tab, sym_tab_size);
+    ft_strlen((const char *)sym_tab);
+    sortSymTab(symtab_copy, sym_tab_size / sizeof(Elf64_Sym), sym_str);
+
+
+
+
+    
+    u_int64_t addr; 
+    short int zero_number = 16;
+    while (i < sym_tab_size / sizeof(Elf64_Sym))
     {
-        if ((u_int64_t)sym_tab->st_value != 0)
+        if (determine_symbol_type(symtab_copy[i].st_info) == 'f')
         {
-            ft_printf("%p ", (char *)(sym_str + (u_int64_t)sym_tab->st_value));
-            ft_printf("%c ", determine_symbol_type(sym_tab->st_info));
+            i++;
+            continue;
         }
-        if ((u_int64_t)sym_tab->st_name != 0)
-            ft_printf("%s", (char *)(sym_str + (u_int64_t)sym_tab->st_name));
+        if (symtab_copy[i].st_value != 0)
+        {
+            addr =  symtab_copy[i].st_value;
+            zero_number = 16;
+            while(addr > 0)
+            {
+                addr = addr / 16;
+                zero_number--;
+            }
+            while(zero_number > 0)
+            {
+                ft_printf("0");
+                zero_number--;
+            }
+            ft_printf("%x ", (char *)(u_int64_t)symtab_copy[i].st_value);
+        }
+        else
+            ft_printf("                 ");
+        ft_printf("%c ", determine_symbol_type(symtab_copy[i].st_info));
+        if (symtab_copy[i].st_name != 0)
+        {
+            ft_printf("%s", (char *)(sym_str + (u_int64_t)symtab_copy[i].st_name));
+        }
         ft_printf("\n");
         i++;
-        sym_tab++;
     }
 }
