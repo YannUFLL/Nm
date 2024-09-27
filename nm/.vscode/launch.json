@@ -5,8 +5,8 @@
             "name": "Launch",
             "type": "lldb",
             "request": "launch",
-            "program": "${workspaceFolder}/nm",
-            "args": ["nm"]
+            "program": "${workspaceFolder}/ft_nm",
+            "args": ["ft_nm"]
         }
     ]
 }

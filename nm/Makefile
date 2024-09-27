@@ -1,14 +1,15 @@
 SRCS = $(wildcard src/*.c) 
 CC = gcc
-CFLAGS = -Wextra -Werror -Wall -g -I./include 
+CFLAGS = -Wextra -Werror -Wall  -Wfatal-errors   -g -I./include 
 LDFLAGS = -L./Library -lft -lftprintf
 OBJS = $(SRCS:.c=.o)
-PRGM = nm 
+PRGM = ft_nm 
+DEBUG = -fsanitize=address
 
 all : $(PRGM)
 
 $(PRGM): $(OBJS)
-	$(CC) $^ $(LDFLAGS) -o $@  
+	$(CC) $^ $(LDFLAGS) $(DEBUG) -o $@  
 
 %.o : %.c 
 	$(CC) $(CFLAGS) -c $< -o $@
