@@ -91,13 +91,6 @@ void inject_error_data(MappedFile mf, void *backup) {
     save_modified_executable(mf, "error_data");
 }
 
-// Erreur sur la taille de l'en-tête ELF (e_ehsize)
-void inject_error_ehsize(MappedFile mf, void *backup) {
-    restore_elf(mf.mapped, backup, mf.size);
-    Elf64_Ehdr *ehdr = (Elf64_Ehdr *)mf.mapped;
-    ehdr->e_ehsize = 0xFFFF;  // Taille de l'en-tête ELF invalide
-    save_modified_executable(mf, "error_ehsize");
-}
 
 // Erreur sur l'offset de la table des sections (e_shoff)
 void inject_error_shoff(MappedFile mf, void *backup) {
@@ -130,22 +123,6 @@ void inject_error_symtab_size(MappedFile mf, void *backup) {
     save_modified_executable(mf, "error_symtab_size");
 }
 
-// Erreur sur le type de machine (e_machine)
-void inject_error_machine_type(MappedFile mf, void *backup) {
-    restore_elf(mf.mapped, backup, mf.size);
-    Elf64_Ehdr *ehdr = (Elf64_Ehdr *)mf.mapped;
-    ehdr->e_machine = 0xFFFF;  // Type de machine invalide
-    save_modified_executable(mf, "error_machine_type");
-}
-
-// Erreur sur l'offset de l'entrée (e_entry)
-void inject_error_entry_offset(MappedFile mf, void *backup) {
-    restore_elf(mf.mapped, backup, mf.size);
-    Elf64_Ehdr *ehdr = (Elf64_Ehdr *)mf.mapped;
-    ehdr->e_entry = 0xFFFFFFFFFFFFFFFF;  // Entrée invalide (hors limites)
-    save_modified_executable(mf, "error_entry_offset");
-}
-
 // Fichier sans erreurs
 void elf_with_no_error(MappedFile mf, void *backup) {
     restore_elf(mf.mapped, backup, mf.size);  
@@ -165,7 +142,7 @@ int main() {
     inject_error_magic(mf, backup);
     inject_error_class(mf, backup);
     inject_error_data(mf, backup);
-
+    inject_error_shnum(mf, backup);
     elf_with_no_error(mf, backup);
 
     free(backup);

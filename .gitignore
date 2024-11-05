@@ -1,0 +1,5 @@
+.DS_Store
+nm/output_ft.txt
+nm/output_system.txt
+*.o
+nm/ft_nm 

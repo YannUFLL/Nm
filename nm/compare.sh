@@ -1,8 +1,7 @@
 #!/bin/sh
 make > /dev/null
-./ft_nm cub3D_bonus > output_ft.txt
-nm cub3D_bonus > output_system.txt
-dff output_ft.txt output_system.txt
-rm output_ft.txt
-rm output_system.txt
-
+./ft_nm $1 > ft_nm.txt
+nm $1 > nm.txt
+diff ft_nm.txt nm.txt
+rm nm.txt
+rm ft_nm.txt

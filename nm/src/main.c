@@ -6,7 +6,7 @@
 /*   By: ydumaine <ydumaine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 13:04:33 by ydumaine          #+#    #+#             */
-/*   Updated: 2024/09/26 19:13:209 by ydumaine         ###   ########.fr       */
+/*   Updated: 2024/11/05 16:05:40 by ydumaine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,7 +129,7 @@ int compare_symbols(Elf64_Sym *sym1, Elf64_Sym* sym2, char *sym_str_tab)
     char *name2 = sym_str_tab + sym2->st_name;
 
     // step 1: compare the name 
-    int cmp = ft_strcmp(name1, name2);
+    int cmp = ft_strcmp_custom(name1, name2);
     if (cmp != 0)
         return (cmp);
 
@@ -180,7 +180,6 @@ void sort_sym_tab(Elf64_Sym *symtab, Elf64_Off symtab_size,char *sym_str_tab)
         }
         symtab[j] = symb;
         i++;
-        // print_sym_tab(symtab, symtab_size, sym_str_tab);
     }
 }
 
@@ -193,7 +192,7 @@ void display_symbol_info(const Elf64_Sym *symb_tab, size_t sym_tab_size, const c
         if (symb_tab[i].st_name == 0)
             continue;
         char symbol_type = determine_symbol_type(&symb_tab[i], section_header_tab, shstrtab_section, sym_str_tab+ (Elf64_Off)symb_tab[i].st_name);
-        if (symbol_type == 'f')
+        if (symbol_type == 'f' || symbol_type == 'F' || symbol_type == 'a' || symbol_type == 'A')
             continue;
         if (symb_tab[i].st_value != 0)
         {
@@ -260,19 +259,41 @@ int ft_check_header(Elf64_Ehdr *ehdr)
         ehdr->e_ident[EI_MAG2] != ELFMAG2 || 
         ehdr->e_ident[EI_MAG3] != ELFMAG3)
         {
-            printf("This file is not an ELF file");
             return (EXIT_FAILURE);
         }
     if (ehdr->e_ident[EI_CLASS] == ELFCLASSNONE)
     {
-        printf("nm: invalid_magic_number: file format not recognized");
         return (EXIT_FAILURE);
     }
     if (ehdr->e_ident[EI_DATA] == ELFDATANONE)
     {
-        printf("nm: invalid_magic_number: file format not recognized");
         return (EXIT_FAILURE);
-    }
+    }    
+    return (0);
+}
+
+int ft_check_offset(Elf64_Ehdr *ehdr, size_t size)
+{
+    if (ehdr->e_shoff >= size)
+        return (1);
+    if (ehdr->e_phoff >= size)
+        return (1);
+    if (ehdr->e_shstrndx >= ehdr->e_shnum)
+        return (1);
+    return (0);
+}
+
+int ft_check_section_numbers(Elf64_Ehdr *ehdr, size_t size)
+{
+    if (ehdr->e_shnum == 0xFFFF)
+        return (1);
+    if (ehdr->e_shnum == 0)
+        return (1);
+    size_t sh_table_size = ehdr->e_shnum * ehdr->e_shentsize;
+    if (ehdr->e_shoff + sh_table_size > size)
+        return (1);
+    if (ehdr->e_shstrndx >= ehdr->e_shnum)
+        return (1);
     return (0);
 }
 
@@ -281,21 +302,39 @@ void parse_elf_file(char *file_name, int print_file_name)
 {
     MappedFile mapped_file = get_mapped_file_memory(file_name);
     Elf64_Ehdr* ehdr =  mapped_file.mapped;
-    if (ehdr->e_ident[EI_DATA] == ELFDATA2LSB)
-        printf("little endian");
-    else if (ehdr->e_ident[EI_DATA] == ELFDATA2MSB)
-        printf("big endian ");
+    // if (ehdr->e_ident[EI_DATA] == ELFDATA2LSB)
+    //     printf("little endian");
+    // else if (ehdr->e_ident[EI_DATA] == ELFDATA2MSB)
+    //     printf("big endian ");
     if (ft_check_header(ehdr))
-    {
+    { 
+        printf("ft_nm: %s: File format not recognized\n", file_name);
         munmap(mapped_file.mapped, mapped_file.size);
-        exit(1);
+        return;
     }
+    if (ft_check_offset(ehdr, mapped_file.size))
+    {
+        printf("ft_nm: %s: File format not recognized\n", file_name);
+        munmap(mapped_file.mapped, mapped_file.size);
+        return;
+    }
+    if (ft_check_section_numbers(ehdr, mapped_file.size))
+    {
+        printf("ft_nm: %s: File format not recognized\n", file_name);
+        munmap(mapped_file.mapped, mapped_file.size);
+        return;
+    }
+    // if (ehdr->e_ident[EI_CLASS] == ELFCLASS32)
+    //     parse_32_bits(ehdr, mapped_file, file_name, print_file_name);
+    // else if (ehdr->e_ident[EI_CLASS] == ELFCLASS64)
+    //     parse_64_bits(ehdr, mapped_file, file_name, print_file_name);
     short int index_section_header_sections_names = ehdr->e_shstrndx;
     Elf64_Off section_header_tab_addr_offset = ehdr->e_shoff;
+
     if (section_header_tab_addr_offset >= mapped_file.size) {
         fprintf(stderr, "Invalid section section_header_tab_addr_offset\n");
         munmap(mapped_file.mapped, mapped_file.size);
-        exit(EXIT_FAILURE);
+        return;
     }
     Elf64_Shdr *section_header_tab = (Elf64_Shdr *)((uint64_t)(ehdr) + section_header_tab_addr_offset);
     Elf64_Shdr *section_header_shstrtab = &section_header_tab[index_section_header_sections_names];
@@ -303,17 +342,23 @@ void parse_elf_file(char *file_name, int print_file_name)
     if (section_shstrtab_offset >= mapped_file.size) {
         fprintf(stderr, "Invalid section header string table offset\n");
         munmap(mapped_file.mapped, mapped_file.size);
-        exit(EXIT_FAILURE);
+        return;
     }
     char *section_shstrtab = (char *)ehdr + section_shstrtab_offset;
     // Nice, we have find the section header string tab. 
 
     Elf64_Shdr *sym_tab_section_header = find_section_header( ".symtab", section_header_tab, section_shstrtab, ehdr->e_shnum);
+    if (!sym_tab_section_header)
+    {
+        printf("ft_nm: %s: no symbols\n", file_name);
+        munmap(mapped_file.mapped, mapped_file.size);
+        return;
+    }
     Elf64_Off  symb_tab_offset = sym_tab_section_header->sh_offset;
     if (symb_tab_offset >= mapped_file.size) {
         fprintf(stderr, "Invalid section symb tab offset\n");
         munmap(mapped_file.mapped, mapped_file.size);
-        exit(EXIT_FAILURE);
+        return;
     }
     Elf64_Sym  *sym_tab = (Elf64_Sym *)((char *)ehdr + symb_tab_offset);
     // We now have the symbole tab, with all the symboles. Nice ! 
@@ -322,7 +367,7 @@ void parse_elf_file(char *file_name, int print_file_name)
     if (symb_str_offset >= mapped_file.size) {
         fprintf(stderr, "Invalid section symb tab offset\n");
         munmap(mapped_file.mapped, mapped_file.size);
-        exit(EXIT_FAILURE);
+        return;
     }
     Elf64_Off sym_tab_size = (Elf64_Off)(sym_tab_section_header->sh_size);
     char *sym_str_tab= (char *)ehdr + symb_str_offset;
