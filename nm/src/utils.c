@@ -6,7 +6,7 @@
 /*   By: ydumaine <ydumaine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 13:04:26 by ydumaine          #+#    #+#             */
-/*   Updated: 2024/11/05 16:08:41 by ydumaine         ###   ########.fr       */
+/*   Updated: 2024/11/06 15:53:23 by ydumaine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,13 +24,17 @@
 
     while (str1[i] || str2[j])
     {
-        while (str1[i] == '_')
+        while (str1[i] == '_' || str1[i] == '@')
             i++;
-        while (str2[j] == '_')
+        while (str2[j] == '_' || str2[j] == '@')
             j++;
 
         if (ft_tolower(str1[i]) != ft_tolower(str2[j]))
         {
+            // if (str1[i] == '@')
+            //     return (1);
+            // if (str2[j] == '@')
+            //     return (-1);
             counter++;
             return (ft_tolower(str1[i]) - ft_tolower(str2[j]));
         }

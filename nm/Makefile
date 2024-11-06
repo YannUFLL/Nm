@@ -6,7 +6,7 @@ LDFLAGS = -L./Library -lft -lftprintf
 OBJS = $(SRCS:.c=.o)
 PRGM = ft_nm 
 TEST_ELF = bad_elf_generator/bad_elf_generator
-DEBUG = -fsanitize=address
+DEBUG = 
 
 
 
