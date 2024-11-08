@@ -6,7 +6,7 @@
 /*   By: ydumaine <ydumaine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 13:04:26 by ydumaine          #+#    #+#             */
-/*   Updated: 2024/11/06 15:53:23 by ydumaine         ###   ########.fr       */
+/*   Updated: 2024/11/07 14:45:44 by ydumaine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,4 +83,21 @@
         j++;
     }
     return (str1[i] - str2[j]);
+}
+
+void ft_dprintf(const char *format, const char *str)
+{
+    while (*format)
+    {
+        if (*format == '%' && *(format + 1) == 's')
+        {
+            write(2, str, ft_strlen(str));
+            format += 2; // skip %s
+        }
+        else
+        {
+            write(2, format, 1);
+            format++;
+        }
+    }
 }

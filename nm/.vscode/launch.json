@@ -7,18 +7,18 @@
       "request": "launch",
       "program": "${workspaceFolder}/ft_nm",
       "args": [
-        "lol"
+        "/home/ydumaine/Nm/nm/test_binary_42/bin/null"
       ]
     },
     {
       "name": "C/C++ Runner: Debug Session",
       "type": "cppdbg",
       "request": "launch",
-      "args": [],
+      "args": ["/home/ydumaine/Nm/nm/test_binary_42/bin/null"],
       "stopAtEntry": false,
       "externalConsole": false,
       "cwd": "/home/ydumaine/Nm/nm",
-      "program": "/home/ydumaine/Nm/nm/build/Debug/outDebug",
+      "program": "/home/ydumaine/Nm/nm",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [

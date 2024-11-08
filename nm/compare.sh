@@ -2,10 +2,9 @@
 make > /dev/null
 
 # Spécifiez le répertoire contenant les fichiers à traiter
-DIRECTORY="./test_binary"
 
 # Parcourir tous les fichiers du répertoire
-for file in "$DIRECTORY"/*; do
+for file in "$1"/*; do
     if [ -f "$file" ]; then
         echo "Processing $file"
         ./ft_nm "$file" > ft_nm.txt

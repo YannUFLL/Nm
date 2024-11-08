@@ -6,7 +6,7 @@
 /*   By: ydumaine <ydumaine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:56:13 by ydumaine          #+#    #+#             */
-/*   Updated: 2024/11/06 15:49:35 by ydumaine         ###   ########.fr       */
+/*   Updated: 2024/11/07 14:51:31 by ydumaine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -223,13 +223,13 @@ void parse_32_bits(Elf32_Ehdr *ehdr, MappedFile mapped_file, char *file_name, in
 {
     if (ft_check_offset32(ehdr, mapped_file.size))
     {
-        printf("ft_nm: %s: File format not recognized\n", file_name);
+        ft_dprintf("ft_nm: %s: File format not recognized\n", file_name);
         munmap(mapped_file.mapped, mapped_file.size);
         return;
     }
     if (ft_check_section_numbers32(ehdr, mapped_file.size))
     {
-        printf("ft_nm: %s: File format not recognized\n", file_name);
+        ft_dprintf("ft_nm: %s: File format not recognized\n", file_name);
         munmap(mapped_file.mapped, mapped_file.size);
         return;
     }
@@ -238,7 +238,7 @@ void parse_32_bits(Elf32_Ehdr *ehdr, MappedFile mapped_file, char *file_name, in
     Elf32_Off section_header_tab_addr_offset = ehdr->e_shoff;
 
     if (section_header_tab_addr_offset >= mapped_file.size) {
-        fprintf(stderr, "Invalid section section_header_tab_addr_offset\n");
+        ft_dprintf("ft_nm: %s: Invalid section section_header_tab_addr_offset\n", file_name);
         munmap(mapped_file.mapped, mapped_file.size);
         return;
     }
@@ -246,7 +246,7 @@ void parse_32_bits(Elf32_Ehdr *ehdr, MappedFile mapped_file, char *file_name, in
     Elf32_Shdr *section_header_shstrtab = &section_header_tab[index_section_header_sections_names];
     Elf32_Off section_shstrtab_offset = section_header_shstrtab->sh_offset;
     if (section_shstrtab_offset >= mapped_file.size) {
-        fprintf(stderr, "Invalid section header string table offset\n");
+        ft_dprintf("ft_nm: %s: Invalid section header string table offset\n", file_name);
         munmap(mapped_file.mapped, mapped_file.size);
         return;
     }
@@ -256,13 +256,13 @@ void parse_32_bits(Elf32_Ehdr *ehdr, MappedFile mapped_file, char *file_name, in
     Elf32_Shdr *sym_tab_section_header = find_section_header32( ".symtab", section_header_tab, section_shstrtab, ehdr->e_shnum);
     if (!sym_tab_section_header)
     {
-        printf("ft_nm: %s: no symbols\n", file_name);
+        ft_dprintf("ft_nm: %s: no symbols\n", file_name);
         munmap(mapped_file.mapped, mapped_file.size);
         return;
     }
     Elf32_Off  symb_tab_offset = sym_tab_section_header->sh_offset;
     if (symb_tab_offset >= mapped_file.size) {
-        fprintf(stderr, "Invalid section symb tab offset\n");
+        ft_dprintf("Invalid section symb tab offset\n", NULL);
         munmap(mapped_file.mapped, mapped_file.size);
         return;
     }
@@ -271,7 +271,7 @@ void parse_32_bits(Elf32_Ehdr *ehdr, MappedFile mapped_file, char *file_name, in
 
     Elf32_Off symb_str_offset  = (find_section_header32(".strtab", section_header_tab, section_shstrtab, ehdr->e_shnum))->sh_offset;
     if (symb_str_offset >= mapped_file.size) {
-        fprintf(stderr, "Invalid section symb tab offset\n");
+        ft_dprintf("Invalid section symb tab offset\n", NULL);
         munmap(mapped_file.mapped, mapped_file.size);
         return;
     }

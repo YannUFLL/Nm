@@ -6,7 +6,7 @@
 /*   By: ydumaine <ydumaine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:42:26 by ydumaine          #+#    #+#             */
-/*   Updated: 2024/11/06 15:21:49 by ydumaine         ###   ########.fr       */
+/*   Updated: 2024/11/08 19:19:46 by ydumaine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,11 +46,11 @@ typedef struct {
 
 const char *find_section_name64(Elf64_Shdr *section_header_tab, const char *shstrtab_section, int index);
 char determine_symbol_type64(const Elf64_Sym *sym, Elf64_Shdr *section_header_tab, const char *shstrtab_section, const char *symb_name, size_t shnum);
-Elf64_Shdr *find_section_header64(const char *section_name, Elf64_Shdr *section_headers_start_adress, char *shstrtab_section, size_t shnum);
-int compare_symbols64(Elf64_Sym *sym1, Elf64_Sym *sym2, char *sym_str_tab);
+Elf64_Shdr *find_section_header_by_name(const char *section_name, Elf64_Shdr *section_headers_start_adress, char *shstrtab_section, size_t shnum);
+int compare_symbols64(Elf64_Sym *sym1, Elf64_Sym *sym2, char *sym_str_tab, size_t sym_str_tab_size);
 void print_sym_tab64(Elf64_Sym *symtab, Elf64_Off symtab_size, char *sym_str_tab);
-void sort_sym_tab64(Elf64_Sym *symtab, Elf64_Off symtab_size, char *sym_str_tab);
-void display_symbol_info64(const Elf64_Sym *symb_tab, size_t sym_tab_size, const char *sym_str_tab, Elf64_Shdr *section_header_tab, const char *shstrtab_section, size_t shnum);
+void sort_sym_tab64(Elf64_Sym *symtab, Elf64_Off symtab_size, char *sym_str_tab, size_t sym_str_tab_size);
+void display_symbol_info64(const Elf64_Sym *symb_tab, size_t sym_tab_size, const char *sym_str_tab, Elf64_Shdr *section_header_tab, const char *shstrtab_section, size_t shnum, size_t sym_str_tab_size);
 int ft_check_offset64(Elf64_Ehdr *ehdr, size_t size);
 int ft_check_section_numbers64(Elf64_Ehdr *ehdr, size_t size);
 void parse_64_bits(Elf64_Ehdr *ehdr, MappedFile mapped_file, char *file_name, int print_file_name);

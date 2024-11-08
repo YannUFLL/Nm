@@ -123,6 +123,21 @@ void inject_error_symtab_size(MappedFile mf, void *backup) {
     save_modified_executable(mf, "error_symtab_size");
 }
 
+void inject_error_symtab_section_header(MappedFile mf, void *backup) {
+    restore_elf(mf.mapped, backup, mf.size);
+    Elf64_Ehdr *ehdr = (Elf64_Ehdr *)mf.mapped;
+    Elf64_Shdr *section_headers = (Elf64_Shdr *)((char *)mf.mapped + ehdr->e_shoff);
+    
+    // Trouver la section symtab et la supprimer
+    for (int i = 0; i < ehdr->e_shnum; i++) {
+        if (section_headers[i].sh_type == SHT_SYMTAB) {
+            memset(&section_headers[i], 0, sizeof(Elf64_Shdr));
+            break;
+        }
+    }
+    save_modified_executable(mf, "error_no_symtab_section_header");
+}
+
 // Fichier sans erreurs
 void elf_with_no_error(MappedFile mf, void *backup) {
     restore_elf(mf.mapped, backup, mf.size);  
@@ -143,6 +158,7 @@ int main() {
     inject_error_class(mf, backup);
     inject_error_data(mf, backup);
     inject_error_shnum(mf, backup);
+    inject_error_symtab_section_header(mf, backup);
     elf_with_no_error(mf, backup);
 
     free(backup);
