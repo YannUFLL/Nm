@@ -7,14 +7,14 @@
       "request": "launch",
       "program": "${workspaceFolder}/ft_nm",
       "args": [
-        "/home/ydumaine/Nm/nm/test_binary_42/bin/null"
+        "/home/ydumaine/Nm/nm/test_binary/symbol_sort_test"
       ]
     },
     {
       "name": "C/C++ Runner: Debug Session",
       "type": "cppdbg",
       "request": "launch",
-      "args": ["/home/ydumaine/Nm/nm/test_binary_42/bin/null"],
+      "args": ["/home/ydumaine/Nm/nm/test_binary/symbol_sort_test"],
       "stopAtEntry": false,
       "externalConsole": false,
       "cwd": "/home/ydumaine/Nm/nm",

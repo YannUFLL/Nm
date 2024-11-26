@@ -6,13 +6,14 @@
 /*   By: ydumaine <ydumaine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 13:04:26 by ydumaine          #+#    #+#             */
-/*   Updated: 2024/11/07 14:45:44 by ydumaine         ###   ########.fr       */
+/*   Updated: 2024/11/26 18:52:34 by ydumaine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 #include "ft_printf.h"
 #include <stdio.h>
+#include "nm.h"
 
 
  int ft_strcmp_custom(const unsigned char *str1, const unsigned char *str2 )
@@ -24,9 +25,9 @@
 
     while (str1[i] || str2[j])
     {
-        while (str1[i] == '_' || str1[i] == '@')
+        while (str1[i] == '_' || str1[i] == '@' || str1[i] == '.')
             i++;
-        while (str2[j] == '_' || str2[j] == '@')
+        while (str2[j] == '_' || str2[j] == '@' || str2[j] == '.')
             j++;
 
         if (ft_tolower(str1[i]) != ft_tolower(str2[j]))
@@ -99,5 +100,30 @@ void ft_dprintf(const char *format, const char *str)
             write(2, format, 1);
             format++;
         }
+    }
+}
+
+
+uint16_t read_uint16(uint16_t value, int is_little_endian) {
+    if (is_little_endian) {
+        return value; 
+    } else {
+        return __builtin_bswap16(value); 
+    }
+}
+
+uint32_t read_uint32(uint32_t value, int is_little_endian) {
+    if (is_little_endian) {
+        return value; 
+    } else {
+        return __builtin_bswap32(value);
+    }
+}
+
+uint64_t read_uint64(uint64_t value, int is_little_endian) {
+    if (is_little_endian) {
+        return value; 
+    } else {
+        return __builtin_bswap64(value);
     }
 }

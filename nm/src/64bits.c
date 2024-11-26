@@ -6,19 +6,19 @@
 /*   By: ydumaine <ydumaine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:48:40 by ydumaine          #+#    #+#             */
-/*   Updated: 2024/11/08 19:22:32 by ydumaine         ###   ########.fr       */
+/*   Updated: 2024/11/26 18:59:06 by ydumaine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "nm.h"
 
-int ft_check_offset64(Elf64_Ehdr *ehdr, size_t size)
+int ft_check_offset64(Elf64_Ehdr *ehdr, size_t size, int is_little_endian)
 {
-    if (ehdr->e_shoff >= size)
+    if (read_uint64(ehdr->e_shoff, is_little_endian) >= size)
         return (1);
-    if (ehdr->e_phoff >= size)
+    if (read_uint64(ehdr->e_phoff, is_little_endian) >= size)
         return (1);
-    if (ehdr->e_shstrndx >= ehdr->e_shnum)
+    if (read_uint64(ehdr->e_shstrndx, is_little_endian) >= ehdr->e_shnum)
         return (1);
     return (0);
 }
@@ -41,7 +41,9 @@ int compare_symbols64(Elf64_Sym *sym1, Elf64_Sym* sym2, char *sym_str_tab, size_
 {
     char *name1 = sym_str_tab + sym1->st_name;
     char *name2 = sym_str_tab + sym2->st_name;
+    
 
+    // Sort use for non null terminated string
     while (name1 < sym_str_tab + sym_str_tab_size && *name1 != '\0')
     {
         name1++;
@@ -56,6 +58,8 @@ int compare_symbols64(Elf64_Sym *sym1, Elf64_Sym* sym2, char *sym_str_tab, size_
         return (1);
     if (name1 == sym_str_tab + sym_str_tab_size && name2 == sym_str_tab + sym_str_tab_size)
         return (0);
+    name1 = sym_str_tab + sym1->st_name;
+    name2 = sym_str_tab + sym2->st_name;
     // step 1: compare the name 
     int cmp = ft_strcmp_custom(name1, name2);
     if (cmp != 0)
@@ -90,9 +94,10 @@ void print_sym_tab64(Elf64_Sym *symtab, Elf64_Off symtab_size, char *sym_str_tab
     ft_printf("\n");
 }
 
-const char *find_section_name64(Elf64_Shdr *section_header_tab, const char *shstrtab_section, int index)
+const char *find_section_name64(Elf64_Shdr *section_header_tab, const char *shstrtab_section, Elf64_Half index, Elf64_Half shnum)
 {
-    
+    if (index >= shnum)
+        return (NULL);
     Elf64_Shdr section = section_header_tab[index];
     const char * section_name = (const char *)(shstrtab_section + section.sh_name);
     return (section_name);
@@ -119,7 +124,7 @@ void sort_sym_tab64(Elf64_Sym *symtab, Elf64_Off symtab_size,char *sym_str_tab, 
     }
 }
 
-Elf64_Shdr *find_section_header_by_name64(const char *section_name, Elf64_Shdr *section_headers_start_adress, char *shstrtab_section, size_t shnum)
+Elf64_Shdr *find_section_header_by_name64(const char *section_name, Elf64_Shdr *section_headers_start_adress, char *shstrtab_section, Elf64_Half shnum)
 {
     Elf64_Shdr *section = section_headers_start_adress;
     // write(1, shstrtab_section, 100);
@@ -145,21 +150,19 @@ Elf64_Shdr *find_section_header_by_type64(Elf64_Word flag, Elf64_Shdr *section_h
     return NULL;
 }
 
-Elf64_Shdr *find_section_header_by_index64(int index, Elf64_Shdr *section_header_tab, int section_count) {
+Elf64_Shdr *find_section_header_by_index64(Elf64_Half index, Elf64_Shdr *section_header_tab, Elf64_Half section_count) {
     if (index >= section_count) {
         return NULL;
     }
     return &section_header_tab[index];
 }
 
-char determine_symbol_type64(const Elf64_Sym *sym, Elf64_Shdr *section_header_tab, const char *shstrtab_section, const char *symb_name, size_t shnum)
+char determine_symbol_type64(const Elf64_Sym *sym, Elf64_Shdr *section_header_tab, const char *shstrtab_section, const char *symb_name, Elf64_Half shnum)
 {
  
     unsigned char type = sym->st_info & 0xf;
     unsigned char bind = sym->st_info >> 4;
-
     (void)symb_name;
-
 
     static const char type_chars[] = {'U', 'D', 'T', 'S', 'f', 'C', 'L', 'O', 'U', 'U', 'O', 'U', 'E', 'P'};
     char type_char = (type < sizeof(type_chars) / sizeof(type_chars[0])) ? type_chars[type] : 'U';
@@ -172,7 +175,7 @@ char determine_symbol_type64(const Elf64_Sym *sym, Elf64_Shdr *section_header_ta
     {
         if (sym->st_shndx > shnum)
             return 'U';
-        const char * name = find_section_name64(section_header_tab, shstrtab_section, sym->st_shndx);
+        const char * name = find_section_name64(section_header_tab, shstrtab_section, sym->st_shndx, shnum);
         if (!strcmp(".rodata", name))
             type_char = 'R';
         else if (!strcmp(".data", name))
@@ -191,13 +194,30 @@ char determine_symbol_type64(const Elf64_Sym *sym, Elf64_Shdr *section_header_ta
             type_char = 'R';
         else if (!strcmp(".eh_frame_hdr", name))
             type_char = 'R';
+        else {
+            Elf64_Shdr *section = find_section_header_by_index64(sym->st_shndx, section_header_tab, shnum); 
+            unsigned int flags = section->sh_flags;
+            if (flags & SHF_EXECINSTR)
+            {
+                type_char = 'T';
+            }
+            else if (flags & SHF_ALLOC)
+            {
+                if (flags & SHF_WRITE)
+                    type_char = 'D';
+                else
+                    type_char = 'R';
+            }
+            if (section && section->sh_type == SHT_NOBITS)
+                type_char = 'B';
+        }
     }
     else
         type_char = 'A';
 
     if (type == 'D')
     {
-        const char * name = find_section_name64(section_header_tab, shstrtab_section, sym->st_shndx);
+        const char * name = find_section_name64(section_header_tab, shstrtab_section, sym->st_shndx, shnum);
         if (!strcmp(".bss", name))
             type = 'B';
     }
@@ -213,7 +233,7 @@ char determine_symbol_type64(const Elf64_Sym *sym, Elf64_Shdr *section_header_ta
 }
 
 
-void display_symbol_info64(const Elf64_Sym *symb_tab, size_t sym_tab_size, const char *sym_str_tab, Elf64_Shdr *section_header_tab, const char *shstrtab_section, size_t shnum, size_t sym_str_tab_size)
+void display_symbol_info64(const Elf64_Sym *symb_tab, size_t sym_tab_size, const char *sym_str_tab, Elf64_Shdr *section_header_tab, const char *shstrtab_section, Elf64_Half shnum, size_t sym_str_tab_size)
 {
     Elf64_Off addr; 
     short int zero_number = 16;
@@ -260,17 +280,24 @@ void display_symbol_info64(const Elf64_Sym *symb_tab, size_t sym_tab_size, const
 
 }
 
+int ft_check_endianness(Elf64_Ehdr *ehdr)
+{
+    if (ehdr->e_ident[EI_DATA] == ELFDATA2LSB)
+        return (1);
+}
+
 void parse_64_bits(Elf64_Ehdr *ehdr, MappedFile mapped_file, char *file_name, int print_file_name)
 {
+    int is_little_endian = ft_check_endianness(ehdr);
     if (ft_check_offset64(ehdr, mapped_file.size))
     {
-        ft_dprintf("ft_nm: %s: File format not recognized\n", file_name);
+        ft_dprintf("ft_nm: %s: file format not recognized\n", file_name);
         munmap(mapped_file.mapped, mapped_file.size);
         return;
     }
     if (ft_check_section_numbers64(ehdr, mapped_file.size))
     {
-        ft_dprintf("ft_nm: %s: File format not recognized\n", file_name);
+        ft_dprintf("ft_nm: %s: file format not recognized\n", file_name);
         munmap(mapped_file.mapped, mapped_file.size);
         return;
     }
