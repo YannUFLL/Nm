@@ -6,7 +6,7 @@
 /*   By: ydumaine <ydumaine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:48:40 by ydumaine          #+#    #+#             */
-/*   Updated: 2024/11/27 13:33:09 by ydumaine         ###   ########.fr       */
+/*   Updated: 2024/11/27 13:44:07 by ydumaine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,15 +70,6 @@ int compare_symbols64(Elf64_Sym *sym1, Elf64_Sym* sym2, char *sym_str_tab, size_
     int cmp = ft_strcmp_custom((const unsigned char *)name1, (const unsigned char *)name2);
     if (cmp != 0)
         return (cmp);
-
-    // Step 2: Compare the addresses
-    uint64_t st_value1 = read_uint64(sym1->st_value, is_little_endian);
-    uint64_t st_value2 = read_uint64(sym2->st_value, is_little_endian);
-
-    if (st_value1 < st_value2)
-        return (-1);
-    else if (st_value1 > st_value2)
-        return (1);
 
     // Step 3: Compare the binding (weakness)
     unsigned char bind1 = sym1->st_info >> 4;
