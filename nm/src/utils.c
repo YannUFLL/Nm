@@ -6,7 +6,7 @@
 /*   By: ydumaine <ydumaine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 13:04:26 by ydumaine          #+#    #+#             */
-/*   Updated: 2024/11/26 18:52:34 by ydumaine         ###   ########.fr       */
+/*   Updated: 2024/11/26 19:51:15 by ydumaine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,6 +102,8 @@ void ft_dprintf(const char *format, const char *str)
         }
     }
 }
+
+
 
 
 uint16_t read_uint16(uint16_t value, int is_little_endian) {
