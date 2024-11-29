@@ -57,6 +57,10 @@
   "C_Cpp_Runner.useLinkTimeOptimization": false,
   "C_Cpp_Runner.msvcSecureNoWarnings": false,
   "files.associations": {
-    "nm.h": "c"
+    "nm.h": "c",
+    "typeinfo": "c",
+    "types.h": "c",
+    "unistd.h": "c",
+    "elf.h": "c"
   }
 }
