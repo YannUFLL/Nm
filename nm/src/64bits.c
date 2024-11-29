@@ -6,7 +6,7 @@
 /*   By: ydumaine <ydumaine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:48:40 by ydumaine          #+#    #+#             */
-/*   Updated: 2024/11/27 13:44:07 by ydumaine         ###   ########.fr       */
+/*   Updated: 2024/11/29 18:36:10 by ydumaine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,15 +72,35 @@ int compare_symbols64(Elf64_Sym *sym1, Elf64_Sym* sym2, char *sym_str_tab, size_
         return (cmp);
 
     // Step 3: Compare the binding (weakness)
-    unsigned char bind1 = sym1->st_info >> 4;
-    unsigned char bind2 = sym2->st_info >> 4;
-    if (bind1 != STB_WEAK && bind2 == STB_WEAK)
-        return (-1);
-    else if (bind1 == STB_WEAK && bind2 != STB_WEAK)
-        return (1);
+    // unsigned char bind1 = sym1->st_info >> 4;
+    // unsigned char bind2 = sym2->st_info >> 4;
+    // if (bind1 != STB_WEAK && bind2 == STB_WEAK)
+    //     return (-1);
+    // else if (bind1 == STB_WEAK && bind2 != STB_WEAK)
+    //     return (1);
+    // return (0);
     return (0);
 }
 
+// FUNCTION that find a symbol name in the symbol table
+void print_sym(Elf64_Sym *symtab, Elf64_Off symtab_size, char *sym_str_tab, char *symb_name)
+{
+    Elf64_Off i = 0;
+
+    while (i < symtab_size)
+    {
+        if (!strcmp(sym_str_tab +  symtab[i].st_name,symb_name)) 
+        {
+            
+            ft_printf("%d[%s]\n", i, sym_str_tab + symtab[i - 1].st_name);
+            ft_printf("%d[%s]\n", i, sym_str_tab + symtab[i].st_name);
+            ft_printf("%d[%s]\n", i, sym_str_tab + symtab[i + 1].st_name);
+        }
+        i++;
+    }
+    ft_printf("\n");
+    ft_printf("\n");
+}
 void print_sym_tab64(Elf64_Sym *symtab, Elf64_Off symtab_size, char *sym_str_tab)
 {
     Elf64_Off i = 0;
@@ -109,6 +129,10 @@ void sort_sym_tab64(Elf64_Sym *symtab, Elf64_Off symtab_size, char *sym_str_tab,
     Elf64_Off i = 1;
     Elf64_Off j = 0;
     Elf64_Sym symb;
+    print_sym(symtab, symtab_size, sym_str_tab, "archive/tar.headerFileInfo.IsDir");
+    print_sym(symtab, symtab_size, sym_str_tab, "archive/tar.(*headerFileInfo).IsDir");
+    print_sym(symtab, symtab_size, sym_str_tab, "compress/bzip2.huffmanCodes.Len");
+    print_sym(symtab, symtab_size, sym_str_tab, "compress/bzip2.(*huffmanCodes).Len");
 
     while (i < symtab_size)
     {
@@ -147,14 +171,59 @@ Elf64_Shdr *find_section_header_by_index64(uint16_t index, Elf64_Shdr *section_h
     return &section_header_tab[index];
 }
 
+
+
 char determine_symbol_type64(const Elf64_Sym *sym, Elf64_Shdr *section_header_tab, const char *shstrtab_section, const char *symb_name, uint16_t shnum, int is_little_endian)
 {
     unsigned char type = sym->st_info & 0xf;
     unsigned char bind = sym->st_info >> 4;
     (void)symb_name;
+    if (symb_name && strcmp(symb_name, "compress/bzip2.(*huffmanCodes).Len") == 0)
+        ft_printf("");
 
-    static const char type_chars[] = {'U', 'D', 'T', 'S', 'f', 'C', 'L', 'O', 'U', 'U', 'O', 'U', 'E', 'P'};
-    char type_char = (type < sizeof(type_chars) / sizeof(type_chars[0])) ? type_chars[type] : 'U';
+       char type_char = 'U';
+    switch (type)
+    {
+        case STT_NOTYPE:
+            type_char = 'U';
+            break;
+        case STT_OBJECT:
+            type_char = 'D';
+            break;
+        case STT_FUNC:
+            type_char = 'T';
+            break;
+        case STT_SECTION:
+            type_char = 'S';
+            break;
+        case STT_FILE:
+            type_char = 'f';
+            break;
+        case STT_COMMON:
+            type_char = 'C';
+            break;
+        case STT_TLS:
+            type_char = 'L';
+            break;
+        case 8:
+            type_char = 'U';
+            break;
+        case 9:
+            type_char = 'U';
+            break;
+        case STT_GNU_IFUNC:
+            type_char = 'i';
+            return type_char;
+        case 11:
+            type_char = 'U';
+            break;
+        case 12:
+            type_char = 'E';
+            break;
+        case 13:
+            type_char = 'P';
+            break;
+    }
 
     uint16_t st_shndx = read_uint16(sym->st_shndx, is_little_endian);
 
@@ -205,6 +274,8 @@ char determine_symbol_type64(const Elf64_Sym *sym, Elf64_Shdr *section_header_ta
         if (name && !strcmp(".bss", name))
             type_char = 'B';
     }
+    if (type == STT_GNU_IFUNC)
+        type_char = 'I';
     if (bind == STB_WEAK)
     {
         if (type == STT_OBJECT)

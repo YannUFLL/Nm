@@ -6,7 +6,7 @@
 /*   By: ydumaine <ydumaine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:48:40 by ydumaine          #+#    #+#             */
-/*   Updated: 2024/11/27 13:42:44 by ydumaine         ###   ########.fr       */
+/*   Updated: 2024/11/27 19:37:07 by ydumaine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -152,9 +152,52 @@ char determine_symbol_type32(const Elf32_Sym *sym, Elf32_Shdr *section_header_ta
     unsigned char type = sym->st_info & 0xf;
     unsigned char bind = sym->st_info >> 4;
     (void)symb_name;
+    // if (symb_name && strcmp(symb_name, "_nl_current_LC_CTYPE") == 0)
+    //     ft_printf("");
 
-    static const char type_chars[] = {'U', 'D', 'T', 'S', 'f', 'C', 'L', 'O', 'U', 'U', 'O', 'U', 'E', 'P'};
-    char type_char = (type < sizeof(type_chars) / sizeof(type_chars[0])) ? type_chars[type] : 'U';
+    char type_char = 'U';
+    switch (type)
+    {
+        case STT_NOTYPE:
+            type_char = 'U';
+            break;
+        case STT_OBJECT:
+            type_char = 'D';
+            break;
+        case STT_FUNC:
+            type_char = 'T';
+            break;
+        case STT_SECTION:
+            type_char = 'S';
+            break;
+        case STT_FILE:
+            type_char = 'f';
+            break;
+        case STT_COMMON:
+            type_char = 'C';
+            break;
+        case STT_TLS:
+            type_char = 'L';
+            break;
+        case 8:
+            type_char = 'U';
+            break;
+        case 9:
+            type_char = 'U';
+            break;
+        case STT_GNU_IFUNC:
+            type_char = 'i';
+            return type_char;
+        case 11:
+            type_char = 'U';
+            break;
+        case 12:
+            type_char = 'E';
+            break;
+        case 13:
+            type_char = 'P';
+            break;
+    }
 
     uint16_t st_shndx = read_uint16(sym->st_shndx, is_little_endian);
 
@@ -175,7 +218,7 @@ char determine_symbol_type32(const Elf32_Sym *sym, Elf32_Shdr *section_header_ta
             type_char = 'R';
         else if (!strcmp(".bss", name))
             type_char = 'B';
-        else
+        else 
         {
             Elf32_Shdr *section = find_section_header_by_index32(st_shndx, section_header_tab, shnum);
             uint32_t flags = read_uint32(section->sh_flags, is_little_endian);
@@ -205,7 +248,7 @@ char determine_symbol_type32(const Elf32_Sym *sym, Elf32_Shdr *section_header_ta
         if (name && !strcmp(".bss", name))
             type_char = 'B';
     }
-    if (bind == STB_WEAK)
+    if (bind == STB_WEAK )
     {
         if (type == STT_OBJECT)
             return 'V';
@@ -234,7 +277,7 @@ void display_symbol_info32(const Elf32_Sym *symb_tab, size_t sym_tab_size, const
         if ((symbol_type == 'a' || symbol_type == 'A') && read_uint32(symb_tab[i].st_value, is_little_endian) == 0)
             continue;
         uint32_t st_value = read_uint32(symb_tab[i].st_value, is_little_endian);
-        if (st_value != 0 && symbol_type != 'U' && symbol_type != 'w')
+        if (symbol_type != 'U' && symbol_type != 'w')
         {
             addr =  st_value;
             zero_number = 8;
@@ -248,7 +291,10 @@ void display_symbol_info32(const Elf32_Sym *symb_tab, size_t sym_tab_size, const
                 ft_printf("0");
                 zero_number--;
             }
-            ft_printf("%x ", st_value);
+            if (st_value != 0)
+                ft_printf("%x ", st_value);
+            else 
+                ft_printf(" ");
         }
         else
             ft_printf("         ");
