@@ -6,7 +6,7 @@
 /*   By: ydumaine <ydumaine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:42:26 by ydumaine          #+#    #+#             */
-/*   Updated: 2024/12/19 15:14:50 by ydumaine         ###   ########.fr       */
+/*   Updated: 2024/12/20 22:46:48 by ydumaine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <elf.h>
-#include "../Libftplus/include/libftplus.h"
+#include "../libftplus/include/libftplus.h"
 #include "utils.h"
 
 #define SH_OFFSET 0x18

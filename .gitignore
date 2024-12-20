@@ -4,3 +4,5 @@ nm/output_system.txt
 *.o
 nm/ft_nm 
 nm/test_binary/test
+.vscode
+nm/.vscode

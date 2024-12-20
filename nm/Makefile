@@ -7,7 +7,7 @@ OBJS = $(SRCS:.c=.o)
 PRGM = ft_nm 
 TEST_ELF = bad_elf_generator/bad_elf_generator
 DEBUG = #-g -fsanitize=address 
-LIBFTPLUS_DIR = Libftplus
+LIBFTPLUS_DIR = libftplus
 LIBFTPLUS = $(LIBFTPLUS_DIR)/libftplus.a
 
 
