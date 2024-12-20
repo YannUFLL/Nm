@@ -3,3 +3,4 @@ nm/output_ft.txt
 nm/output_system.txt
 *.o
 nm/ft_nm 
+nm/test_binary/test

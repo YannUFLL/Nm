@@ -6,7 +6,7 @@
 /*   By: ydumaine <ydumaine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:48:40 by ydumaine          #+#    #+#             */
-/*   Updated: 2024/11/29 18:36:10 by ydumaine         ###   ########.fr       */
+/*   Updated: 2024/12/16 14:47:03 by ydumaine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,10 +129,10 @@ void sort_sym_tab64(Elf64_Sym *symtab, Elf64_Off symtab_size, char *sym_str_tab,
     Elf64_Off i = 1;
     Elf64_Off j = 0;
     Elf64_Sym symb;
-    print_sym(symtab, symtab_size, sym_str_tab, "archive/tar.headerFileInfo.IsDir");
-    print_sym(symtab, symtab_size, sym_str_tab, "archive/tar.(*headerFileInfo).IsDir");
-    print_sym(symtab, symtab_size, sym_str_tab, "compress/bzip2.huffmanCodes.Len");
-    print_sym(symtab, symtab_size, sym_str_tab, "compress/bzip2.(*huffmanCodes).Len");
+    // print_sym(symtab, symtab_size, sym_str_tab, "archive/tar.headerFileInfo.IsDir");
+    // print_sym(symtab, symtab_size, sym_str_tab, "archive/tar.(*headerFileInfo).IsDir");
+    // print_sym(symtab, symtab_size, sym_str_tab, "compress/bzip2.huffmanCodes.Len");
+    // print_sym(symtab, symtab_size, sym_str_tab, "compress/bzip2.(*huffmanCodes).Len");
 
     while (i < symtab_size)
     {
@@ -178,8 +178,7 @@ char determine_symbol_type64(const Elf64_Sym *sym, Elf64_Shdr *section_header_ta
     unsigned char type = sym->st_info & 0xf;
     unsigned char bind = sym->st_info >> 4;
     (void)symb_name;
-    if (symb_name && strcmp(symb_name, "compress/bzip2.(*huffmanCodes).Len") == 0)
-        ft_printf("");
+
 
        char type_char = 'U';
     switch (type)

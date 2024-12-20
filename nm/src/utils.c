@@ -6,13 +6,10 @@
 /*   By: ydumaine <ydumaine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 13:04:26 by ydumaine          #+#    #+#             */
-/*   Updated: 2024/11/29 13:27:13 by ydumaine         ###   ########.fr       */
+/*   Updated: 2024/12/19 15:17:24 by ydumaine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
-#include "ft_printf.h"
-#include <stdio.h>
 #include "nm.h"
 
 int ft_exclude_char(char c)

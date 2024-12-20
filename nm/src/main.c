@@ -6,7 +6,7 @@
 /*   By: ydumaine <ydumaine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 13:04:33 by ydumaine          #+#    #+#             */
-/*   Updated: 2024/11/06 15:31:50 by ydumaine         ###   ########.fr       */
+/*   Updated: 2024/12/19 19:05:06 by ydumaine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,7 @@ void parse_elf_file(char *file_name, int print_file_name)
     Elf_Generic_Ehdr *ehdr = (Elf_Generic_Ehdr *)mapped_file.mapped;
     if (ft_check_header(ehdr))
     { 
-        printf("ft_nm: %s: File format not recognized\n", file_name);
+        ft_printf("ft_nm: %s: File format not recognized\n", file_name);
         munmap(mapped_file.mapped, mapped_file.size);
         return;
     }
