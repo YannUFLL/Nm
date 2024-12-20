@@ -6,7 +6,7 @@
 /*   By: ydumaine <ydumaine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:48:40 by ydumaine          #+#    #+#             */
-/*   Updated: 2024/12/16 14:47:03 by ydumaine         ###   ########.fr       */
+/*   Updated: 2024/12/20 22:54:08 by ydumaine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -307,7 +307,7 @@ void display_symbol_info64(const Elf64_Sym *symb_tab, size_t sym_tab_size, const
             continue;
         uint64_t st_value = read_uint64(symb_tab[i].st_value, is_little_endian);
         // Dont print address for undefined symbols
-        if (st_value != 0 && symbol_type != 'U' && symbol_type != 'w')
+        if (symbol_type != 'U' && symbol_type != 'w')
         {
             addr =  st_value;
             zero_number = 16;
@@ -321,7 +321,10 @@ void display_symbol_info64(const Elf64_Sym *symb_tab, size_t sym_tab_size, const
                 ft_printf("0");
                 zero_number--;
             }
-            ft_printf("%x ", st_value);
+            if (st_value != 0)
+                ft_printf("%x ", st_value);
+            else 
+                ft_printf(" "); 
         }
         else
             ft_printf("                 ");
