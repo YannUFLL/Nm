@@ -6,7 +6,7 @@
 /*   By: ydumaine <ydumaine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/24 13:04:33 by ydumaine          #+#    #+#             */
-/*   Updated: 2024/12/19 19:05:06 by ydumaine         ###   ########.fr       */
+/*   Updated: 2024/12/20 13:57:30 by ydumaine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,6 @@ MappedFile get_mapped_file_memory(const char * file_name)
     mapped = mmap(NULL, filestat.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
     if (mapped == MAP_FAILED)
     {
-        perror("mapped");
         close(fd);
         exit(EXIT_FAILURE);
     }
